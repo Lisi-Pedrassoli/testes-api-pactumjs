@@ -1,15 +1,20 @@
 {
-  "name": "pactum-graphql",
+  "name": "pactum-contract",
   "version": "1.0.0",
-  "description": "Testes em GraphQL com Pactum",
+  "description": "Testes de contrato com Pactum",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./test/**/*.test.js"
+    "test": "mocha ./test/**/*.test.js",
+    "test:gql": "mocha ./test/graphql/**/*.test.js",
+    "test:rest": "mocha ./test/api/**/*.test.js",
+    "test:contractProvider": "mocha ./test/graphql/contract/loginProvider.test.js",
+    "test:contractConsumer": "mocha ./test/graphql/contract/loginConsumer.test.js"
   },
   "keywords": [],
   "author": "elisianepedrassoli",
   "license": "ISC",
   "dependencies": {
+    "pactum-flow-plugin": "^0.1.4",
     "pactum-matchers": "^1.2.0"
   },
   "devDependencies": {
