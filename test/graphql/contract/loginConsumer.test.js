@@ -1,11 +1,12 @@
-const { reporter, flow, handler } = require('pactum');
+const { reporter, flow, handler, mock } = require('pactum');
+const { like } = require('pactum-matchers');
 const pf = require('pactum-flow-plugin');
 
 function addFlowReporter() {
     pf.config.url = 'http://localhost:8080'; // pactum flow server url
     pf.config.projectId = 'lojaebac-front';
     pf.config.projectName = 'Loja EBAC Front';
-    pf.config.version = '1.0.0';
+    pf.config.version = '1.0.1';
     pf.config.username = 'scanner';
     pf.config.password = 'scanner';
     reporter.add(pf.reporter);
@@ -14,10 +15,12 @@ function addFlowReporter() {
 // global before
 before(async () => {
     addFlowReporter();
+    await mock.start(4000);
 });
 
 // global after
 after(async () => {
+    await mock.stop();
     await reporter.end();
 });
 
@@ -31,31 +34,32 @@ handler.addInteractionHandler('Login Response', () => {
             body: {
                 "email": "admin@admin.com",
                 "password": "admin123"
-            },
-            response: {
-                status: 200,
-                body: {
-                    "success": true,
-                    "message": "login successfully",
-                    "data": {
-                        "_id": "679f50eb0cf0a913258b286c",
-                        "role": "admin",
-                        "profile": {
-                            "firstName": "admin"
-                        },
-                        "email": "admin@admin.com",
-                        "token": like ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY3OWY1MGViMGNmMGE5MTMyNThiMjg2YyIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwicm9sZSI6ImFkbWluIn0sImlhdCI6MTc5NDYwMzI0MiwiZXhwIjoxNzk0Njg5NjQyfQ.x5BcU8ELsMrJrPRSauOxYVnqauOwYVK7Amzpw1s4PiI")
-                    }
+            }
+        },
+        response: {
+            status: 200,
+            body: {
+                "success": true,
+                "message": "login successfully",
+                "data": {
+                    "_id": "679f50eb0cf0a913258b286c",
+                    "role": "admin",
+                    "profile": {
+                        "firstName": "admin"
+                    },
+                    "email": "admin@admin.com",
+                    "token": like("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY3OWY1MGViMGNmMGE5MTMyNThiMjg2YyIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwicm9sZSI6ImFkbWluIn0sImlhdCI6MTc5NDYwMzI0MiwiZXhwIjoxNzk0Njg5NjQyfQ.x5BcU8ELsMrJrPRSauOxYVnqauOwYVK7Amzpw1s4PiI")
                 }
             }
         }
     }
+
 })
 
 it('FRONT - Deve autenticar o usuário corretamente', async () => {
     await flow("Login")
         .useInteraction('Login Response')
-        .post('http://lojaebac.ebaconline.art.br/graphql')
+        .post('http://localhost:4000/public/authUser')
         .withJson({
             "email": "admin@admin.com",
             "password": "admin123"
